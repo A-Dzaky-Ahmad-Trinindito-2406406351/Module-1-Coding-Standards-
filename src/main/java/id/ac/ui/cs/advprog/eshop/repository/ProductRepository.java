@@ -20,22 +20,41 @@ public class ProductRepository {
         return productData.iterator();
     }
 
-    public Product findById(String id) {
+    public Product findById(String productId) {
         for (Product product : productData) {
-            if (product.getProductId().equals(id)) {
+            if (product.getProductId() != null && product.getProductId().equals(productId)) {
                 return product;
             }
         }
         return null;
     }
 
-    public Product update(Product product) {
-        for (int i = 0; i < productData.size(); i++) {
-            if (productData.get(i).getProductId().equals(product.getProductId())) {
-                productData.set(i, product);
+    public Product update(Product updatedProduct) {
+        if (updatedProduct == null || updatedProduct.getProductId() == null) {
+            return null;
+        }
+        for (Product product : productData) {
+            if (updatedProduct.getProductId().equals(product.getProductId())) {
+                product.setProductName(updatedProduct.getProductName());
+                product.setProductQuantity(updatedProduct.getProductQuantity());
                 return product;
             }
         }
         return null;
+    }
+
+    public boolean deleteById(String productId) {
+        if (productId == null) {
+            return false;
+        }
+        Iterator<Product> iterator = productData.iterator();
+        while (iterator.hasNext()) {
+            Product product = iterator.next();
+            if (productId.equals(product.getProductId())) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
     }
 }
