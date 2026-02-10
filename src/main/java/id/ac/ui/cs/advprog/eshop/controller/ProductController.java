@@ -11,7 +11,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/product")
-public class productController {
+public class ProductController {
 
     @Autowired
     private ProductService service;
@@ -20,14 +20,11 @@ public class productController {
     public String createProductPage(Model model) {
         Product product = new Product();
         model.addAttribute("product", product);
-        return "createProduct";
+        return "CreateProduct";
     }
 
     @PostMapping("/create")
     public String createProductPost(@ModelAttribute Product product, Model model) {
-        if (product.getProductId() == null || product.getProductId().isEmpty()) {
-            product.setProductId(java.util.UUID.randomUUID().toString());
-        }
         service.create(product);
         return "redirect:list";
     }
@@ -35,13 +32,16 @@ public class productController {
     @GetMapping("/list")
     public String productListPage(Model model) {
         List<Product> allProducts = service.findAll();
-        model.addAttribute("product", allProducts);
+        model.addAttribute("products", allProducts);
         return "ProductList";
     }
 
     @GetMapping("/edit/{id}")
-    public String editProductPage(@PathVariable String id, Model model) {
-        Product product = service.findById(id);
+    public String editProductPage(@PathVariable("id") String productId, Model model) {
+        Product product = service.findById(productId);
+        if (product == null) {
+            return "redirect:/product/list";
+        }
         model.addAttribute("product", product);
         return "EditProduct";
     }
@@ -49,6 +49,12 @@ public class productController {
     @PostMapping("/edit")
     public String editProductPost(@ModelAttribute Product product) {
         service.update(product);
-        return "redirect:list";
+        return "redirect:/product/list";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteProductPost(@PathVariable("id") String productId) {
+        service.deleteById(productId);
+        return "redirect:/product/list";
     }
 }
