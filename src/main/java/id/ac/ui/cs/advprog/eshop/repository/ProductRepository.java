@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class productRepository {
+@Repository
+public class ProductRepository {
     private List<Product> productData = new ArrayList<>();
 
     public Product create(Product product) {
