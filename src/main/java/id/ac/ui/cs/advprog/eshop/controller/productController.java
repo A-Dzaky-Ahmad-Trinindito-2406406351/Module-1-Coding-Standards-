@@ -33,6 +33,6 @@ public class productController {
     public String productListPage(Model model) {
         List<Product> allProducts = service.findAll();
         model.addAttribute("product", allProducts);
-        return "productList";
+        return "ProductList";
     }
 }
