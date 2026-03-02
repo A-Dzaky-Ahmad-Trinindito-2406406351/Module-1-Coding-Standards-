@@ -48,16 +48,29 @@ dependencies {
 val sonarHostUrlProvider = providers.gradleProperty("sonarHostUrl")
     .orElse(providers.environmentVariable("SONAR_HOST_URL"))
     .orElse("https://sonarcloud.io")
+
 val sonarTokenProvider = providers.gradleProperty("sonarToken")
     .orElse(providers.environmentVariable("SONAR_TOKEN"))
+    .orElse("")
+
+val sonarProjectKeyProvider = providers.gradleProperty("sonarProjectKey")
+    .orElse(providers.environmentVariable("SONAR_PROJECT_KEY"))
+    .orElse("A-Dzaky-Ahmad-Trinindito-2406406351_Module-1-Coding-Standards-")
+
+val sonarOrganizationProvider = providers.gradleProperty("sonarOrganization")
+    .orElse(providers.environmentVariable("SONAR_ORGANIZATION"))
+    .orElse("a-dzaky-ahmad-trinindito-2406406351")
+
 val githubRepositoryProvider = providers.environmentVariable("GITHUB_REPOSITORY")
+
 val nvdApiKeyProvider = providers.environmentVariable("NVD_API_KEY")
 
 sonar {
     properties {
-        val githubRepository = githubRepositoryProvider.orNull
-
         property("sonar.host.url", sonarHostUrlProvider.get())
+        property("sonar.projectKey", sonarProjectKeyProvider.get())
+        property("sonar.organization", sonarOrganizationProvider.get())
+        property("sonar.token", sonarTokenProvider.get())
         property(
             "sonar.coverage.jacoco.xmlReportPaths",
             layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
@@ -66,10 +79,6 @@ sonar {
             "sonar.junit.reportPaths",
             layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath
         )
-
-        if (!sonarTokenProvider.orNull.isNullOrBlank()) {
-            property("sonar.token", sonarTokenProvider.get())
-        }
     }
 }
 

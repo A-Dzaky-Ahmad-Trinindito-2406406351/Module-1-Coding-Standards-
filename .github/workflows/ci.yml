@@ -27,4 +27,6 @@ jobs:
         run: ./gradlew sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: A-Dzaky-Ahmad-Trinindito-2406406351_Module-1-Coding-Standards-
+          SONAR_ORGANIZATION: a-dzaky-ahmad-trinindito-2406406351
           SONAR_HOST_URL: https://sonarcloud.io
