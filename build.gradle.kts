@@ -3,11 +3,13 @@ plugins {
     jacoco
     id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.sonarqube") version "7.1.0.6387"
+    id("org.owasp.dependencycheck") version "12.2.0"
 }
 
-val seleniumJavaVersion = "4.14.1"
-val seleniumJupiterVersion = "5.0.1"
-val webdrivermanagerVersion = "6.1.0"
+val seleniumJavaVersion = "4.40.0"
+val seleniumJupiterVersion = "6.3.1"
+val webdrivermanagerVersion = "6.3.3"
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
@@ -43,6 +45,51 @@ dependencies {
     testImplementation("io.github.bonigarcia:selenium-jupiter:${seleniumJupiterVersion}")
     testImplementation("io.github.bonigarcia:webdrivermanager:${webdrivermanagerVersion}")
 }
+val sonarHostUrlProvider = providers.gradleProperty("sonarHostUrl")
+    .orElse(providers.environmentVariable("SONAR_HOST_URL"))
+    .orElse("https://sonarcloud.io")
+
+val sonarTokenProvider = providers.gradleProperty("sonarToken")
+    .orElse(providers.environmentVariable("SONAR_TOKEN"))
+    .orElse("")
+
+val sonarProjectKeyProvider = providers.gradleProperty("sonarProjectKey")
+    .orElse(providers.environmentVariable("SONAR_PROJECT_KEY"))
+    .orElse("A-Dzaky-Ahmad-Trinindito-2406406351_Module-1-Coding-Standards-")
+
+val sonarOrganizationProvider = providers.gradleProperty("sonarOrganization")
+    .orElse(providers.environmentVariable("SONAR_ORGANIZATION"))
+    .orElse("a-dzaky-ahmad-trinindito-2406406351")
+
+val githubRepositoryProvider = providers.environmentVariable("GITHUB_REPOSITORY")
+
+val nvdApiKeyProvider = providers.environmentVariable("NVD_API_KEY")
+
+sonar {
+    properties {
+        property("sonar.host.url", sonarHostUrlProvider.get())
+        property("sonar.projectKey", sonarProjectKeyProvider.get())
+        property("sonar.organization", sonarOrganizationProvider.get())
+        property("sonar.token", sonarTokenProvider.get())
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
+        )
+        property(
+            "sonar.junit.reportPaths",
+            layout.buildDirectory.dir("test-results/test").get().asFile.absolutePath
+        )
+    }
+}
+
+dependencyCheck {
+    formats = listOf("HTML", "JSON")
+    scanConfigurations = listOf("runtimeClasspath", "testRuntimeClasspath")
+    failBuildOnCVSS = 11.0F
+    nvd.apiKey = nvdApiKeyProvider.orNull
+}
+
+
 
 tasks.register<Test>("unitTest") {
     description = "Runs unit tests."
@@ -75,4 +122,8 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+}
+
+tasks.matching { it.name == "sonar" || it.name == "sonarqube" }.configureEach {
+    dependsOn(tasks.test, tasks.jacocoTestReport)
 }

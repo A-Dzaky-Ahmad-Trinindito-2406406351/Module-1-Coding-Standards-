@@ -1,21 +1,32 @@
-name: Continuous Integration (CI)
+name: Continuous Integration
 
 on:
   push:
   pull_request:
 
 jobs:
-  test:
-    name: Run tests
-    runs-on: ubuntu-22.04
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Check out the Git repository
-        uses: actions/checkout@v4
-      - name: Set up Java toolchain
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: "temurin"
-          java-version: "21"
-          cache: "gradle"
-      - name: Run unit tests
-        run: ./gradlew test
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build & Test
+        run: ./gradlew build
+
+      - name: SonarCloud Scan
+        run: ./gradlew sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: A-Dzaky-Ahmad-Trinindito-2406406351_Module-1-Coding-Standards-
+          SONAR_ORGANIZATION: a-dzaky-ahmad-trinindito-2406406351
+          SONAR_HOST_URL: https://sonarcloud.io
