@@ -18,7 +18,7 @@ jobs:
           java-version: '21'
 
       - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@d9c87d481d55275bb5441eef3fe0e46805f9ef70
 
       - name: Build & Test
         run: ./gradlew build
